@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = 'cicd-demo-app'
+    }
+
     stages {
         stage('Install') {
             steps {
@@ -13,10 +17,15 @@ pipeline {
                 sh '. venv/bin/activate && pytest'
             }
         }
+        stage('Build Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} -t ${IMAGE_NAME}:latest ."
+            }
+        }
     }
 
     post {
-        success { echo 'Pipeline passed' }
+        success { echo "Pipeline passed, built ${IMAGE_NAME}:${BUILD_NUMBER}" }
         failure { echo 'Pipeline failed' }
     }
 }
